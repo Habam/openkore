@@ -720,6 +720,7 @@ sub new {
 		'0B0B' => ['item_list_end', 'C2', [qw(type flag)]],
 		'0B13' => ['item_preview', 'a2 C v a16 a25', [qw(index broken upgrade cards options)]],
 		'0B1B' => ['load_confirm'],
+		'0B1D' => ['ping'], #2
 		'0B2F' => ['homunculus_property', 'Z24 C v11 V2 v2 V2 v2', [qw(name state level hunger intimacy atk matk hit critical def mdef flee aspd hp hp_max sp sp_max exp exp_max points_skill attack_range)]],
 		'0B5F' => ['rodex_mail_list', 'v C a*', [qw(len isEnd mailList)]],   # -1
 		'0B60' => ['account_server_info', 'v a4 a4 a4 a4 a26 C x17 a*', [qw(len sessionID accountID sessionID2 lastLoginIP lastLoginTime accountSex serverInfo)]],
@@ -1561,46 +1562,6 @@ sub rates_info {
 	message TF("EXP Rates: %s%% (Base %s%% + Premium %s%% + Server %s%% + Plus %s%%) \n", $rates{exp}{total}, $rates{exp}{0}, $rates{exp}{1}, $rates{exp}{2}, $rates{exp}{3}), "info";
 	message TF("Drop Rates: %s%% (Base %s%% + Premium %s%% + Server %s%% + Plus %s%%) \n", $rates{drop}{total}, $rates{drop}{0}, $rates{drop}{1}, $rates{drop}{2}, $rates{drop}{3}), "info";
 	message TF("Death Penalty: %s%% (Base %s%% + Premium %s%% + Server %s%% + Plus %s%%) \n", $rates{death}{total}, $rates{death}{0}, $rates{death}{1}, $rates{death}{2}, $rates{death}{3}), "info";
-	message "=====================================================================\n", "info";
-}
-
-sub rates_info2 {
-	my ($self, $args) = @_;
-
-	my $msg = $args->{RAW_MSG};
-	my $msg_size = $args->{RAW_MSG_SIZE};
-	my $header_pack = 'v V3';
-	my $header_len = ((length pack $header_pack) + 2);
-
-	my $detail_pack = 'C l3';
-	my $detail_len = length pack $detail_pack;
-
-	my %rates = (
-		exp => { total => $args->{exp}/1000 }, # Value to Percentage => /100
-		death => { total => $args->{death}/1000 }, # 1 d.p. => /10
-		drop => { total => $args->{drop}/1000 },
-	);
-
-	# get details
-	for (my $i = $header_len; $i < $args->{RAW_MSG_SIZE}; $i += $detail_len) {
-
-		my ($type, $exp, $death, $drop) = unpack($detail_pack, substr($msg, $i, $detail_len));
-
-		$rates{exp}{$type} = $exp/1000;
-		$rates{death}{$type} = $death/1000;
-		$rates{drop}{$type} = $drop/1000;
-	}
-
-	# we have 4 kinds of detail:
-	# $rates{exp or drop or death}{DETAIL_KIND}
-	# 0 = base server exp (?)
-	# 1 = premium acc additional exp
-	# 2 = server additional exp
-	# 3 = not sure, maybe it's for "extra exp" events? never seen this using the official client (bRO)
-	message T("=========================== Server Infos ===========================\n"), "info";
-	message TF("EXP Rates: %s%% (Base %s%% + Premium %s%% + Server %s%% + Plus %s%%) \n", $rates{exp}{total}, $rates{exp}{0}+100, $rates{exp}{1}, $rates{exp}{2}, $rates{exp}{3}), "info";
-	message TF("Drop Rates: %s%% (Base %s%% + Premium %s%% + Server %s%% + Plus %s%%) \n", $rates{drop}{total}, $rates{drop}{0}+100, $rates{drop}{1}, $rates{drop}{2}, $rates{drop}{3}), "info";
-	message TF("Death Penalty: %s%% (Base %s%% + Premium %s%% + Server %s%% + Plus %s%%) \n", $rates{death}{total}, $rates{death}{0}+100, $rates{death}{1}, $rates{death}{2}, $rates{death}{3}), "info";
 	message "=====================================================================\n", "info";
 }
 

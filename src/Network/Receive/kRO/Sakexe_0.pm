@@ -552,6 +552,7 @@ sub new {
 		'096F' => ['merge_item_result', 'a2 v C', [qw(itemIndex total result)]], #5
 		'0977' => ['monster_hp_info', 'a4 V V', [qw(ID hp hp_max)]],
 		'097A' => ['quest_all_list', 'v V a*', [qw(len quest_amount message)]],
+		'097B' => ['rates_info2', 's V3 a*', [qw(len exp death drop detail)]],
 		'097D' => ['top10', 'v a*', [qw(type message)]],
 		'097E' => ['rank_points', 'vV2', [qw(type points total)]],
 		'0983' => ['actor_status_active', 'v a4 C V5', [qw(type ID flag total tick unknown1 unknown2 unknown3)]],
@@ -707,6 +708,7 @@ sub new {
 		'0B18' => ['inventory_expansion_info', 'v', [qw(expansionSize)]], # expansionSize = inventorySize [sctnightcore]
 		'0B18' => ['inventory_expansion_result', 'v', [qw(result)]], #
 		'0B1B' => ['load_confirm'],
+		'0B1D' => ['ping'], #2
 		'0B20' => ['hotkeys', 'C a2 a*', [qw(rotate tab hotkeys)]],#herc PR 2468
 		'0B2F' => ['homunculus_property', 'Z24 C v11 V2 v2 V2 v2', [qw(name state level hunger intimacy atk matk hit critical def mdef flee aspd hp hp_max sp sp_max exp exp_max points_skill attack_range)]],
 		'0B6F' => ['character_creation_successful', 'a*', [qw(charInfo)]],
@@ -1586,15 +1588,6 @@ sub inventory_expansion_result {
 	} elsif ($args->{result} == EXPAND_INVENTORY_RESULT_MAX_SIZE) {
 		message TF("You can no longer expand the maximum possession limit."),"info";
 	}
-}
-
-sub received_login_token {
-	my ($self, $args) = @_;
-	# XKore mode 1 / 3.
-	return if ($self->{net}->version == 1);
-	my $master = $masterServers{$config{master}};
-	# rathena use 0064 not 0825
-	$messageSender->sendTokenToServer($config{'username'}, $config{'password'}, $master->{master_version}, $master->{version});
 }
 
 *changeToInGameState = *Network::Receive::changeToInGameState;
