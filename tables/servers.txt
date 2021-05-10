@@ -30,6 +30,7 @@ charDeleteDateType 1
 blockingPlayerCancel 1
 rankingSystemType 1
 itemListType 1
+ignoreAntiCheatWarning 0
 
 # http://ragnarok.uol.com.br
 [Brazil - bRO: Thor]
@@ -52,6 +53,7 @@ charDeleteDateType 1
 blockingPlayerCancel 1
 rankingSystemType 1
 itemListType 1
+ignoreAntiCheatWarning 0
 
 # http://ro.zhaouc.com/
 [cRO - China: Taren]
@@ -106,6 +108,7 @@ charBlockSize 155
 charDeleteDateType 1
 blockingPlayerCancel 1
 rankingSystemType 1
+ignoreAntiCheatWarning 0
 
 # Renewal
 # http://playragnarok.com
@@ -125,6 +128,7 @@ charDeleteDateType 1
 blockingPlayerCancel 1
 rankingSystemType 1
 itemListType 1
+ignoreAntiCheatWarning 0
 
 # Transcendence
 # http://playragnarok.com
@@ -141,6 +145,7 @@ charDeleteDateType 1
 blockingPlayerCancel 1
 rankingSystemType 1
 itemListType 1
+ignoreAntiCheatWarning 0
 
 # http://playragnarok.com
 [International - iRO: Sakray]
@@ -173,6 +178,8 @@ addTableFolders Old
 [Korea - kRO:Zero]
 ip 112.175.128.137
 port 6950
+OTP_ip 112.175.128.135
+OTP_port 6900
 master_version 0
 version 19
 secureLogin 0
@@ -186,8 +193,6 @@ gameGuard 1
 addTableFolders kRO/Zero;kRO
 pinCode 1
 storageEncryptKey 0x050B6F79, 0x0202C179, 0x0E20120, 0x04FA43E3, 0x0179B6C8, 0x05973DF2, 0x07D8D6B, 0x08CB9ED9
-OTT_ip 112.175.128.135
-OTT_port 6900
 sendCryptKeys 0x2FC330DD, 0x4D914DE2, 0x01C04E1F
 blockingPlayerCancel 1
 
@@ -240,6 +245,8 @@ charBlockSize 147
 pinCode 1
 charDeleteDateType 1
 rankingSystemType 1
+itemListType 1
+ignoreAntiCheatWarning 0
 
 # https://roextreme.com/msp/main
 [Philippines - pRO: Yggdrasil]
@@ -259,6 +266,8 @@ charBlockSize 147
 pinCode 1
 charDeleteDateType 1
 rankingSystemType 1
+itemListType 1
+ignoreAntiCheatWarning 0
 
 # https://ru.4game.com/ro/play/
 [Russia - rRO-Renewal]
@@ -305,6 +314,7 @@ blockingPlayerCancel 1
 rankingSystemType 1
 itemListType 1
 pinCode 1
+ignoreAntiCheatWarning 0
 
 [Localhost]
 ip localhost

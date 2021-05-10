@@ -696,6 +696,7 @@ sub new {
 		'0ACB' => ['stat_info', 'v V2', [qw(type val val2)]],
 		'0ACC' => ['exp', 'a4 V2 v2', [qw(ID val val2 type flag)]],
 		'0ACD' => ['login_error', 'C Z20', [qw(type date)]],
+		'0ADA' => ['refine_status', 'Z24 V C C', [qw(name itemID refine_level status)]],
 		'0ADC' => ['misc_config', 'C4', [qw(show_eq_flag call_flag pet_autofeed_flag homunculus_autofeed_flag)]],
  		'0ADE' => ['overweight_percent', 'v V', [qw(len percent)]],#TODO
 		'0ADF' => ['actor_info', 'a4 a4 Z24 Z24', [qw(ID charID name prefix_name)]],
@@ -707,6 +708,7 @@ sub new {
  		'0AE5' => ['party_users_info', 'v Z24 a*', [qw(len party_name playerInfo)]],
 		'0AF0' => ['action_ui', 'C V', [qw(type data)]],
 		'0AF7' => ['character_name', 'v a4 Z24', [qw(flag ID name)]],
+		'0AFB' => ['sage_autospell', 'v a*', [qw(len autospell_list)]],
 		'0AFD' => ['sage_autospell', 'v a*', [qw(len autospell_list)]], #herc PR 2310
 		'0AFE' => ['quest_update_mission_hunt', 'v2 a*', [qw(len mission_amount message)]],
 		'0AFF' => ['quest_all_list', 'v V a*', [qw(len quest_amount message)]],

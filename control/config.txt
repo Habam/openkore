@@ -43,12 +43,14 @@ commandPrefix ;
 callSignGM 0
 inGameAuth 0
 
-pauseCharLogin 1
+macAddress
+
+pauseCharLogin 2
 pauseCharServer 0
 pauseMapServer 0
 ignoreInvalidLogin 0
-ignoreAntiCheatWarning 0
 secureLogin_requestCode
+
 
 # Opening cash shop when connected to map server (recv/ST0)
 whenInGame_requestCashPoints 0
@@ -151,7 +153,7 @@ cachePlayerNames 1
 cachePlayerNames_duration 900
 cachePlayerNames_maxSize 100
 
-clientSight 20
+clientSight 15
 
 dcPause 1
 dcOnDeath 0
@@ -362,7 +364,6 @@ repairAuto_list
 status_mapProperty 0
 status_mapType 0
 
-removeActorWithDistance
 monster_filter
 
 ######## Mercenary Support ########
@@ -533,6 +534,8 @@ attackSkillSlot {
 	target_whenStatusActive
 	target_whenStatusInactive
 	target_deltaHp
+	whenPartyMembersNear
+	whenPartyMembersNearDist
 	inInventory
 	isSelfSkill 0
 	equip_topHead
@@ -560,6 +563,8 @@ attackComboSlot {
 	monsters
 	notMonsters
 	monstersCount
+	whenPartyMembersNear
+	whenPartyMembersNearDist
 }
 
 doCommand {
@@ -584,6 +589,8 @@ doCommand {
 	notInTown 0
 	timeout
 	disabled 0
+	whenPartyMembersNear
+	whenPartyMembersNearDist
 	inInventory
 	inCart
 	inMap
@@ -615,6 +622,8 @@ useSelf_skill {
 	notInTown 0
 	timeout 0
 	disabled 0
+	whenPartyMembersNear
+	whenPartyMembersNearDist
 	inInventory
 	manualAI 0
 }
@@ -662,6 +671,8 @@ partySkill {
 	target_timeout 0
 	target_deltaHp
 	target_dead 0
+	whenPartyMembersNear
+	whenPartyMembersNearDist
 	inInventory
 	isSelfSkill 0
 }
@@ -669,6 +680,8 @@ partySkill {
 monsterSkill {
 	target
 	maxUses
+	whenPartyMembersNear
+	whenPartyMembersNearDist
 	# Skill Use Conditions, including isSelfSkill
 	# Self Conditions
 	# Target Monster Conditions
@@ -725,6 +738,8 @@ equipAuto {
 	notInTown 0
 	timeout 0
 	disabled 0
+	whenPartyMembersNear
+	whenPartyMembersNearDist
 	inInventory
 	manualAI 0
 }
@@ -751,6 +766,8 @@ useSelf_item {
 	notInTown 0
 	timeout 0
 	disabled 0
+	whenPartyMembersNear
+	whenPartyMembersNearDist
 	inInventory
 	manualAI 0
 }

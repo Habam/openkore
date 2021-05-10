@@ -841,7 +841,7 @@ sub received_characters {
 	} elsif ($config{pauseCharLogin}) {
 		return if($config{XKore} eq 1 || $config{XKore} eq 3);
 		if (!defined $timeout{'char_login_pause'}{'timeout'}) {
-			$timeout{'char_login_pause'}{'timeout'} = 2;
+			$timeout{'char_login_pause'}{'timeout'} = $config{pauseCharLogin};
 		}
 		$timeout{'char_login_pause'}{'time'} = time;
 
@@ -1741,6 +1741,8 @@ sub actor_display {
 	#### Initialize ####
 
 	my $nameID = unpack("V", $args->{ID});
+	my $name = bytesToString($args->{name});
+	$name =~ s/^\s+|\s+$//g;
 
 	if ($args->{switch} eq "0086") {
 		# Message 0086 contains less information about the actor than other similar
@@ -1773,11 +1775,11 @@ sub actor_display {
 		return;
 	}
 
-	# Remove actors with a distance greater than removeActorWithDistance. Useful for vending (so you don't spam
+	# Remove actors with a distance greater than clientSight. Useful for vending (so you don't spam
 	# too many packets in prontera and cause server lag). As a side effect, you won't be able to "see" actors
-	# beyond removeActorWithDistance.
-	if ($config{removeActorWithDistance}) {
-		if ((my $block_dist = blockDistance($char->{pos_to}, \%coordsTo)) > ($config{removeActorWithDistance})) {
+	# beyond clientSight.
+	if ($config{clientSight}) {
+		if ((my $block_dist = blockDistance($char->{pos_to}, \%coordsTo)) >= ($config{clientSight})) {
 			my $nameIdTmp = unpack("V", $args->{ID});
 			debug "Removed out of sight actor $nameIdTmp at ($coordsTo{x}, $coordsTo{y}) (distance: $block_dist)\n";
 			return;
@@ -1849,11 +1851,7 @@ sub actor_display {
 			$actor = new Actor::Player();
 			$actor->{appear_time} = time;
 			# New actor_display packets include the player's name
-			if ($args->{switch} eq "0086") {
-				$actor->{name} = $args->{name};
-			} else {
-				$actor->{name} = bytesToString($args->{name}) if exists $args->{name};
-			}
+			$actor->{name} = $name if defined $name;
 			$mustAdd = 1;
 		}
 		$actor->{nameID} = $nameID;
@@ -1875,7 +1873,7 @@ sub actor_display {
 			}
 
 			$actor->{appear_time} = time;
-			$actor->{name_given} = bytesToString($args->{name}) if exists $args->{name};
+			$actor->{name_given} = $name if defined $name;
 			$actor->{jobID} = $args->{type} if exists $args->{type};
 			$mustAdd = 1;
 		}
@@ -1905,12 +1903,11 @@ sub actor_display {
 		if (!defined $actor) {
 			$actor = new Actor::Pet();
 			$actor->{appear_time} = time;
-			my $name = bytesToString($args->{name});
 			$actor->{name} = $name;
 #			if ($monsters_lut{$args->{type}}) {
 #				$actor->setName($monsters_lut{$args->{type}});
 #			}
-			$actor->{name_given} = exists $args->{name} ? $name : T("Unknown");
+			$actor->{name_given} = defined $name ? $name : T("Unknown");
 			$mustAdd = 1;
 
 			# Previously identified monsters could suddenly be identified as pets.
@@ -1931,11 +1928,7 @@ sub actor_display {
 				$actor->setName($monsters_lut{$args->{type}});
 			}
 			# New actor_display packets include the Monster name
-			if ($args->{switch} eq "0086") {
-				$actor->{name} = $args->{name};
-			} else {
-				$actor->{name} = bytesToString($args->{name}) if exists $args->{name};
-			}
+			$actor->{name} = $name if defined $name;
 			$actor->{name_given} = "Unknown";
 			$actor->{binType} = $args->{type};
 			$mustAdd = 1;
@@ -1949,7 +1942,7 @@ sub actor_display {
 		if (!defined $actor) {
 			$actor = new Actor::NPC();
 			$actor->{appear_time} = time;
-			$actor->{name} = bytesToString($args->{name}) if exists $args->{name};
+			$actor->{name} = $name if defined $name;
 			$mustAdd = 1;
 		}
 		$actor->{nameID} = $nameID;
@@ -2564,6 +2557,7 @@ sub actor_info {
 	my ($self, $args) = @_;
 	return unless changeToInGameState();
 	my $name = bytesToString($args->{name});
+	$name =~ s/^\s+|\s+$//g;
 	debug "Received object info: $name\n", "parseMsg_presence/name", 2;
 	my $player = $playersList->getByID($args->{ID});
 	if ($player) {
@@ -2586,7 +2580,6 @@ sub actor_info {
 
 	my $monster = $monstersList->getByID($args->{ID});
 	if ($monster) {
-		$name =~ s/^\s+|\s+$//g;
 		debug "Monster Info: $name ($monster->{binID})\n", "parseMsg", 2;
 		$monster->{name_given} = $name;
 		$monster->{info} = 1;
@@ -5975,6 +5968,11 @@ sub friend_request {
 	$incomingFriend{'name'} = bytesToString($args->{name});
 	message TF("%s wants to be your friend\n", $incomingFriend{'name'});
 	message TF("Type 'friend accept' to be friend with %s, otherwise type 'friend reject'\n", $incomingFriend{'name'});
+	Plugins::callHook("friend_request", {
+		accountID => $incomingFriend{'accountID'},
+		charID => $incomingFriend{'charID'},
+		name => $incomingFriend{'name'}
+	});
 }
 
 # Notification about a friend removed (PACKET_ZC_DELETE_FRIENDS).
@@ -6061,7 +6059,7 @@ sub slave_calcproperty_handler {
 }
 
 sub EAC_key {
-	return if($config{'ignoreAntiCheatWarning'});
+	return if($masterServer->{'ignoreAntiCheatWarning'});
 	chatLog("k", T("*** Easy Anti-Cheat Detected ***\n"));
 	error T("OpenKore don't have support to servers with Easy Anti-Cheat Shield, please read the FAQ (github).\n");
 	quit();
@@ -7666,6 +7664,13 @@ sub refineui_info {
 	}
 }
 
+sub refine_status {
+	my ($self, $args) = @_;
+	my $msgIndex = $args->{status} ? 3272 : 3273;
+	my $msg = sprintf($msgTable[$msgIndex],  bytesToString($args->{name}), $args->{refine_level}, itemNameSimple($args->{itemID}))."\n";
+	warning $msg, "info";
+}
+
 sub character_ban_list {
 	my ($self, $args) = @_;
 	# Header + Len + CharList[character_name(size:24)]
@@ -7748,7 +7753,7 @@ sub received_login_token {
 	return if ($self->{net}->version == 1);
 	my $master = $masterServers{$config{master}};
 	# rathena use 0064 not 0825
-	$messageSender->sendTokenToServer($config{username}, $config{password}, $master->{master_version}, $master->{version}, $args->{login_token}, $args->{len}, $master->{OTT_ip}, $master->{OTT_port});
+	$messageSender->sendTokenToServer($config{username}, $config{password}, $master->{master_version}, $master->{version}, $args->{login_token}, $args->{len}, $master->{OTP_ip}, $master->{OTP_port});
 }
 
 # this info will be sent to xkore 2 clients

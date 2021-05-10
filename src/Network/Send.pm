@@ -320,8 +320,11 @@ sub reconstruct_master_login {
 	my ($self, $args) = @_;
 
 	$args->{ip} = '192.168.0.2' unless exists $args->{ip}; # gibberish
-	$args->{mac} = '111111111111' unless exists $args->{mac}; # gibberish
-	$args->{mac_hyphen_separated} = join '-', $args->{mac} =~ /(..)/g;
+	unless (exists $args->{mac}) {
+	    $args->{mac} = $config{macAddress} || '111111111111'; # gibberish
+	    $args->{mac} = uc($args->{mac});
+	    $args->{mac_hyphen_separated} = join '-', $args->{mac} =~ /(..)/g;
+	}
 	$args->{isGravityID} = 0 unless exists $args->{isGravityID};
 
 	if (exists $args->{password}) {
@@ -407,6 +410,18 @@ sub reconstruct_game_login {
 	my ($self, $args) = @_;
 	$args->{userLevel} = 0 unless exists $args->{userLevel};
 	($args->{iAccountSID}) = $masterServer->{ip} =~ /\d+\.\d+\.\d+\.(\d+)/ unless exists $args->{iAccountSID};
+
+	if (exists $args->{mac}) {
+		my $key = pack('C16', (0x06, 0xA9, 0x21, 0x40, 0x36, 0xB8, 0xA1, 0x5B, 0x51, 0x2E, 0x03, 0xD5, 0x34, 0x12, 0x00, 0x06));
+		my $chain = pack('C16', (0x3D, 0xAF, 0xBA, 0x42, 0x9D, 0x9E, 0xB4, 0x30, 0xB4, 0x22, 0xDA, 0x80, 0x2C, 0x9F, 0xAC, 0x41));
+		my $mac = $config{macAddress} || "F2ADCC03771E";
+		$mac = uc($mac);
+		my $in = pack('a16', $mac);
+
+		my $rijndael = Utils::Rijndael->new;
+		$rijndael->MakeKey($key, $chain, 16, 16);
+		$args->{mac} = $rijndael->Encrypt($in, undef, 16, 0);
+	}
 }
 
 # TODO: $masterServer->{gameLogin_packet}?
@@ -752,7 +767,9 @@ sub parse_buy_bulk_buyer {
 
 sub reconstruct_buy_bulk_buyer {
     my ($self, $args) = @_;
-    $args->{itemInfo} = pack('(a6)*', map { pack 'a2 v2', @{$_}{qw(ID itemID amount)} } @{$args->{items}});
+	my $packet_size = $self->{buy_bulk_buyer_size} || '(a6)*';
+	my $packet_unpack = $self->{buy_bulk_buyer_size_unpack} || 'a2 v2';
+	$args->{itemInfo} = pack($packet_size, map { pack $packet_unpack, @{$_}{qw(ID itemID amount)} } @{$args->{items}});
 }
 
 sub sendBuyBulkBuyer {
@@ -790,7 +807,9 @@ sub sendBuyBulkOpenShop {
 
 sub reconstruct_buy_bulk_openShop {
 	my ($self, $args) = @_;
-	$args->{itemInfo} = pack '(a8)*', map { pack 'v2 V', @{$_}{qw(nameID amount price)} } @{$args->{items}};
+	my $packet_size = $self->{buy_bulk_openShop_size} || '(a8)*';
+	my $packet_unpack = $self->{buy_bulk_openShop_size_unpack} || 'v2 V';
+	$args->{itemInfo} = pack $packet_size, map { pack $packet_unpack, @{$_}{qw(nameID amount price)} } @{$args->{items}};
 }
 
 sub sendSkillUse {
@@ -1357,7 +1376,7 @@ sub sendRefineUIClose {
 }
 
 sub sendTokenToServer {
-	my ($self, $username, $password, $master_version, $version, $token, $length, $ott_ip, $ott_port) = @_;
+	my ($self, $username, $password, $master_version, $version, $token, $length, $otp_ip, $otp_port) = @_;
 	my $len =  $length + 92;
 
 	my $password_rijndael = $self->encrypt_password($password);
@@ -1366,7 +1385,7 @@ sub sendTokenToServer {
 	my $mac_hyphen_separated = join '-', $mac =~ /(..)/g;
 
 	$net->serverDisconnect();
-	$net->serverConnect($ott_ip, $ott_port);
+	$net->serverConnect($otp_ip, $otp_port);# OTP - One Time Password
 
 	my $msg = $self->reconstruct({
 		switch => 'token_login',
