@@ -22,7 +22,8 @@ sub new {
 
 	my %packets = (
 		# twRO related packets
-		'0064' => ['master_login', 'V Z24 a24 C', [qw(version username password_rijndael master_version)]], 
+		'0064' => ['master_login', 'V Z24 a24 C', [qw(version username password_rijndael master_version)]],
+		'0436' => ['map_login', 'a4 a4 a4 H8 V C', [qw(accountID charID sessionID magicNumber tick sex)]],
 	);
 
 	$self->{packet_list}{$_} = $packets{$_} for keys %packets;

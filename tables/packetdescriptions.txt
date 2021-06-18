@@ -606,7 +606,7 @@
 0ACC Exp Gain
 0ACD Connection Failed With Error
 0ADC Allow Other See Equipment
-0ADD Item Exists
+0ADD Item Appeared
 0ADE Overweight Percent
 0ADF Actor Get Info (Name)
 0AE0 Connection Failed With Error
