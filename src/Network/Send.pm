@@ -457,6 +457,7 @@ sub sendMapLogin {
 			accountID => $accountID,
 			charID => $charID,
 			sessionID => $sessionID,
+			magicNumber => '29f04001',
 			tick => getTickCount,
 			sex => $sex,
 		});

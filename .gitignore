@@ -58,3 +58,6 @@ tables/**/npcs.txt
 tables/**/monsters.txt
 *.xpm
 *.weight
+
+#
+control/config.txt
